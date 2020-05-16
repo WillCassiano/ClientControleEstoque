@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos</title>
+</head>
+<body>
+    <button onclick="getProdutos()">Listar Produtos</button>
+    <h3>Cadastro de Produtos</h3>
+    <form action="javascript:void(0);" method="POST" onsubmit="addProduto()">
+        <input type="text" id="add-nome">
+        <input type="number" id="add-quantidade">
+        <input type="number" id="add-valor">
+        <input type="number" id="add-grupoId">
+        <input type="submit" value="Cadastrar">
+    </form>
+
+    <ul id="lista-produtos">
+
+    </ul>
+
+    <script>
+        var uri = "https://localhost:5001/api/Produtos";
+
+        function getProdutos(){
+            fetch(uri)
+                .then(response => response.json())
+                .then(data => mostrarProdutos(data))
+                .catch(err => console.error("Erro ao listar produtos", err));
+        }
+
+        function mostrarProdutos(data){
+            var listaProdutos = document.getElementById("lista-produtos");
+            listaProdutos.innerText = '';
+
+            data.forEach(item => {
+                var li = document.createElement('li');
+
+                li.textContent = item.id + '-' + item.nome + ' -' + item.grupo.nome;
+
+                listaProdutos.appendChild(li);
+
+            });
+
+        }      
+
+         function addProduto(){
+             var addNome = document.getElementById("add-nome");
+             var addQuantidade = document.getElementById("add-quantidade");
+             var addValor = document.getElementById("add-valor");
+             var addGrupoId = document.getElementById("add-grupoId");
+
+             const produto = {
+                 nome: addNome.value,
+                 quantidade: parseFloat(addQuantidade.value),
+                 valor: parseFloat(addValor.value),
+                 grupoId: parseInt(addGrupoId.value)
+             }
+
+             console.log(produto);
+
+             fetch(uri, {
+                 method: "POST",
+                 headers:{
+                     'Accept': 'application/json',
+                     'Content-Type': 'application/json'
+                 },
+                 body: JSON.stringify(produto)
+             })
+                .then(response => response.json())
+                .then(()=> {
+                    getProdutos();
+                    addNome.value = '';
+                    addQuantidade.value = '';
+                    addValor.value = '';
+                    addGrupoId.value = '';
+                })
+                .catch(err => console.error("Erro ao cadastrar produtos", err));
+
+
+         } 
+
+    </script>
+</body>
+</html>
